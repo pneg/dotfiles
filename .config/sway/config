@@ -22,17 +22,43 @@ exec foot --server
 # on the original workspace that the command was run on.
 set $menu fuzzel | xargs swaymsg exec --
 
+# Color scheme (Gruvbox dark) - adapted from https://gist.github.com/daboross/15a54c086b1c20e9ccc8878cdac65838
+set $color_bg #282828
+set $color_bg1 #3c3836
+set $color_bg2 #504945
+set $color_bg3 #665c54
+set $color_bg4 #7c6f64
+set $color_fb #ebdbb2
+set $color_aqua #8ec07c
+set $color_blue #83a598
+set $color_light_bg #fbf1c7
+set $color_light_fg #3c3836
+set $color_normal_white  #a89984
+set $color_bright_white  #ebdbb2
+set $color_normal_gray   #282828
+set $color_bright_gray   #3c3836
+set $color_bright_yellow #d79921
+set $color_normal_black  #1d2021
+set $color_unused        #ff0000
+
+# Colors                  border        background             text                   indicator            child_border
+client.focused            $color_bg2    $color_bg2             $color_bright_white    $color_bright_gray   $color_normal_black
+client.focused_inactive   $color_bg1    $color_bg1             $color_normal_white    $color_bright_gray   $color_normal_black
+client.unfocused          $color_bg     $color_bg              $color_normal_white    $color_normal_gray   $color_normal_black
+client.urgent             $color_bg     $color_light_bg        $color_light_fg $color_unused        $color_unused
+client.placeholder        $color_bg     $color_unused          $color_unused          $color_unused        $color_unused
+
 ### Output configuration
 #
 # Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
-output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
+output * bg ~/.config/sway/backgrounds/firefox.png fill
 #
 # Example configuration:
 #
 #   output HDMI-A-1 resolution 1920x1080 position 1920,0
 #
 # You can get the names of your outputs by running: swaymsg -t get_outputs
-output eDP-1 scale 1.5 
+output eDP-1 scale 1.5
 exec wlsunset -l 32.7 -L -96.8
 
 
@@ -83,7 +109,13 @@ input "0:0:Atmel_maXTouch_Touchpad" {
     middle_emulation enabled
 }
 
+# hide cursor
 seat seat0 hide_cursor 10000
+
+# clipboard manager
+
+exec wl-paste --watch cliphist store
+bindsym $mod+y exec 'cliphist list | bemenu --prompt=clipboard | cliphist decode | wl-copy'
 
 ### Key bindings
 #
@@ -131,7 +163,7 @@ seat seat0 hide_cursor 10000
 
     # Fullscreen with F keys
     bindsym $mod+F4 fullscreen
-    
+
     # Play/pause media
     bindsym --locked XF86AudioPlay exec "playerctl play"
     bindsym --locked XF86AudioPause exec "playerctl pause"
@@ -236,8 +268,8 @@ seat seat0 hide_cursor 10000
     # Disable borders
     default_border none
     #hide_edge_borders smart_no_gaps
-    gaps inner 4
-    smart_gaps on
+    #gaps inner 4
+    #smart_gaps on
 #
 # Scratchpad:
 #

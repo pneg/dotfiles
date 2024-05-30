@@ -151,7 +151,7 @@
         "format-disconnected": "Disconnected ⚠",
         "format-alt": "{ifname}: {ipaddr}/{cidr}",
 	"on-click": "nmcli d wifi rescan",
-        "on-click-right": "toggle-wifi-radio"
+        //"on-click-right": "toggle-wifi-radio"
     },
     "bluetooth": {
         // "format": "",
