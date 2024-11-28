@@ -1,0 +1,90 @@
+#!/bin/bash
+
+# ------------------------------------------------------
+# install-dotfiles - Personal bash script to install config files
+#
+# Usage: install-dotfiles [-h|--help]
+#        install-dotfiles [[-d|--dry-run]|[-f|--force]]
+#
+# Version 1.0
+# ------------------------------------------------------
+
+PROGNAME="$(basename $0)"
+VERSION="1.0"
+
+usage() {
+  printf "%s\n" \
+    "Usage: ${PROGNAME} [-h|--help]"
+  printf "%s\n" \
+    "       ${PROGNAME} [[-d|--dry-run] | [-f|--force]]"
+}
+
+print_help() {
+  cat << _EOF_
+${PROGNAME} ${VERSION} - Personal bash script to install config files.
+
+$(usage)
+
+Options:
+  -h, --help	Display this help message and exit.
+  -d, --dry-run	Output files to be installed.
+  -f, --force	Replaces existing files.
+
+_EOF_
+}
+
+error_exit() {
+  echo "${PROGNAME}: ${1:-"Unknown Error"}" 1>&2
+  exit 1
+}
+
+
+
+# Parse options
+while [[ -n $1 ]]; do
+  case $1 in
+    -h | --help)
+      print_help
+      exit 0
+      ;;
+    -d | --dry-run)
+      dry_run=yes
+      ;;
+    -f | --force)
+      force=yes
+      ;;
+    --* | -*)
+      usage >&2; error_exit "Unknown option $1"
+      ;;
+    *)
+      break
+      ;;
+  esac
+  shift
+done
+
+if [[ ! $(type -P "rsync") ]]; then
+  error_exit "rsync not found on path"
+fi
+if [[ ! $(type -P "cp") ]]; then
+  error_exit "cp not found on path"
+fi
+
+if [[ "$dry_run" = "yes" ]]; then
+  rsync \
+    --recursive \
+    --links \
+    --perms \
+    --dry-run \
+    --verbose \
+    --out-format="$HOME/%n" \
+    dots/ ~ \
+    || error_exit "$LINENO: rsync error"
+elif [[ "$force" = "yes" ]]; then
+  cp -r dots/ ~ || error_exit "$LINENO: error copying files"
+else
+  read -p "Install dotfiles? [y/n] " || error_exit "$LINENO: error reading user input"
+  if [[ "$REPLY" = "y" ]]; then
+    cp -r --update=none-fail dots/ ~ || error_exit "$LINENO: error copying file"
+  fi
+fi
