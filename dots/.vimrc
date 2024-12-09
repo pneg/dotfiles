@@ -1,74 +1,71 @@
-" Gotta be first
+ " Gotta be first
 set nocompatible
 
 filetype off
 
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-
-Plugin 'VundleVim/Vundle.vim'
-Plugin 'altercation/vim-colors-solarized'
-Plugin 'morhetz/gruvbox'
-Plugin 'vim-airline/vim-airline'
-Plugin 'vim-airline/vim-airline-themes'
+call plug#begin()
+Plug 'morhetz/gruvbox'
+"Plug 'vim-airline/vim-airline'
+Plug 'itchyny/lightline.vim'
 
 " ---- Vim as a programmer's text editor -----------------
-"Plugin 'scrooloose/nerdtree'
-"Plugin 'jistr/vim-nerdtree-tabs'
-"Plugin 'vim-syntastic/syntastic'
-Plugin 'dense-analysis/ale'
-Plugin 'neoclide/coc.nvim'
-Plugin 'xolox/vim-misc'
-"Plugin 'xolox/vim-easytags'
-"Plugin 'majutsushi/tagbar'
-Plugin 'ctrlpvim/ctrlp.vim'
-Plugin 'vim-scripts/a.vim'
-Plugin 'tpope/vim-sleuth'
+"Plug 'scrooloose/nerdtree'
+"Plug 'jistr/vim-nerdtree-tabs'
+Plug 'dense-analysis/ale'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+"Plug 'ctrlpvim/ctrlp.vim'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
+" disabled because it binds space in insert mode
+"Plug 'vim-scripts/a.vim'
+Plug 'tpope/vim-sleuth'
+"Plug 'puremourning/vimspector'
 
 " ---- C# Plugins --------------------------------------
-Plugin 'OmniSharp/omnisharp-vim'
+Plug 'OmniSharp/omnisharp-vim', { 'for': 'csharp' }
 " Mappings, code-actions available flag and statusline integration
-Plugin 'nickspoons/vim-sharpenup'
+Plug 'nickspoons/vim-sharpenup', { 'for': 'csharp' }
 " Vim FZF integration, used as OmniSharp selector
-Plugin 'junegunn/fzf'
-Plugin 'junegunn/fzf.vim'
 
 " ---- Working with Git -------------------------
-Plugin 'airblade/vim-gitgutter'
-Plugin 'tpope/vim-fugitive'
-"Plugin 'Xuyuanp/nerdtree-git-plugin'
+Plug 'airblade/vim-gitgutter'
+Plug 'tpope/vim-fugitive'
+"Plug 'Xuyuanp/nerdtree-git-plugin'
 
 " ---- Other text editing features ------------------------
-Plugin 'Raimondi/delimitMate'
-Plugin 'preservim/vim-pencil'
-Plugin 'godlygeek/tabular'
-Plugin 'preservim/vim-markdown'
-Plugin 'junegunn/goyo.vim'
-Plugin 'junegunn/limelight.vim'
+"Plug 'Raimondi/delimitMate'
+"Plug 'tpope/vim-endwise'
+"Plug 'godlygeek/tabular'
+
+" ---- Editing plaintext files -------------------------
+Plug 'preservim/vim-pencil', { 'for': ['text', 'markdown', 'org'] }
+" prevents spell checking from working for some reason?
+"Plug 'preservim/vim-markdown'
+Plug 'junegunn/goyo.vim', { 'for': ['text', 'markdown', 'org'] }
+Plug 'junegunn/limelight.vim', { 'for': ['text', 'markdown', 'org'] }
 
 " ---- man pages, tmux, system clipboard  -----------------
-Plugin 'jez/vim-superman'
-Plugin 'christoomey/vim-tmux-navigator'
-Plugin 'jasonccox/vim-wayland-clipboard'
+"Plug 'jez/vim-superman'
+"Plug 'christoomey/vim-tmux-navigator'
+Plug 'jasonccox/vim-wayland-clipboard'
 
 " ---- Extras/Advanced plugins ---------------------------
 " Highlight and strip trailing whitespace
-Plugin 'ntpeters/vim-better-whitespace'
+Plug 'ntpeters/vim-better-whitespace'
 " Easily surround chunks of text
-Plugin 'tpope/vim-surround'
+Plug 'tpope/vim-surround'
 " Change quotes across lines
-Plugin 'kana/vim-textobj-user'
-Plugin 'beloglazov/vim-textobj-quotes'
+"Plug 'kana/vim-textobj-user'
+"Plug 'beloglazov/vim-textobj-quotes'
 " Automatically insert the closing HTML tag
-Plugin 'HTML-AutoCloseTag'
+"Plug 'vim-scripts/HTML-AutoCloseTag'
 " Markdown Preview in Browser
-"Plugin 'iamcco/markdown-preview.nvim'
-Plugin 'MeanderingProgrammer/render-markdown.nvim'
-Plugin 'bullets-vim/bullets.vim'
+"Plug 'iamcco/markdown-preview.nvim'
+"Plug 'bullets-vim/bullets.vim'
 " Decouple CursorHold events from update time
-Plugin 'antoinemadec/FixCursorHold.nvim'
+"Plug 'antoinemadec/FixCursorHold.nvim'
 
-call vundle#end()
+call plug#end()
 
 filetype plugin indent on
 
@@ -87,14 +84,10 @@ syntax on
 
 set mouse=a
 
-" ---- Keep cursor at center of screen ----
-set scrolloff=999
-"augroup VCenterCursor
-"  au!
-"  au BufEnter,WinEnter,WinNew,VimResized *,*.*
-"        \ let &scrolloff=winheight(win_getid())/2
-"augroup END
+" rebind leader
+let mapleader = " "
 
+set scrolloff=10
 
 " We need this for plugins like Syntastic and vim-gitgutter which put symbols
 " in the sign column
@@ -104,9 +97,21 @@ set signcolumn=number
 " allow Ctrl-[ without timeout
 set ttimeoutlen=0
 
+" insert newline in normal mode without going into insert
+nnoremap <Leader>o o<Esc>0"_D
+nnoremap <Leader>O O<Esc>0"_D
+
+" bind nohl
+nnoremap <Leader>n :nohl<CR>
+
 " indentation jumping, sometimes useful
-noremap <silent> <M-k> :call search('^'. matchstr(getline('.'), '\(^\s*\)') .'\%<' . line('.') . 'l\S', 'be')<CR>
-noremap <silent> <M-j> :call search('^'. matchstr(getline('.'), '\(^\s*\)') .'\%>' . line('.') . 'l\S', 'e')<CR>
+"noremap <silent> <M-k> :call search('^'. matchstr(getline('.'), '\(^\s*\)') .'\%<' . line('.') . 'l\S', 'be')<CR>
+"noremap <silent> <M-j> :call search('^'. matchstr(getline('.'), '\(^\s*\)') .'\%>' . line('.') . 'l\S', 'e')<CR>
+
+" ---- Try and make things faster ---------------------
+set noswapfile
+set lazyredraw
+set viminfo=
 
 " ---- Indentation Settings ---------------------------
 set autoindent
@@ -119,50 +124,16 @@ set shiftwidth=4
 nnoremap <S-Tab> <<
 " for insert mode
 inoremap <S-Tab> <C-d>
+" Make Ctrl-Backspace work
+imap <C-BS> <C-W>
+
+" Disable comments automatically inserting on new line
+autocmd FileType * set formatoptions-=cro
 
 " ---- antoinemadec/FixCursorHold.nvim settings ----
 " Time between CursorHolds, used for omnisharp
-let g:cursorhold_updatetime=100
+"let g:cursorhold_updatetime=100
 
-" ---- Indent on save ----
-" Restore cursor position, window position, and last search after running a
-" command.
-function! Preserve(command)
-  " Save the last search.
-  let search = @/
-
-  " Save the current cursor position.
-  let cursor_position = getpos('.')
-
-  " Save the current window position.
-  normal! H
-  let window_position = getpos('.')
-  call setpos('.', cursor_position)
-
-  " Execute the command.
-  execute a:command
-
-  " Restore the last search.
-  let @/ = search
-
-  " Restore the previous window position.
-  call setpos('.', window_position)
-  normal! zt
-
-  " Restore the previous cursor position.
-  call setpos('.', cursor_position)
-endfunction
-
-" Re-indent the whole buffer.
-function! Indent()
-  "normal mzgg=G`z
-  call Preserve('normal gg=G')
-endfunction
-
-" Remember cursor position
-if has("autocmd")
-  au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | execute "normal! g`\"" | endif
-endif
 
 " ---- Let's save undo info! ----
 if !isdirectory($HOME."/.cache/vim")
@@ -178,7 +149,7 @@ set undofile
 command WriteSudo w !sudo tee %
 
 " ---- Theming ----
-"  Toggle this to "light" for light colorscheme
+" Toggle this to "light" for light colorscheme
 set background=dark
 
 " italics (must be before colorscheme)
@@ -193,19 +164,14 @@ hi SpellBad cterm=underline
 " Style for gvim
 hi SpellBad gui=undercurl
 
-" Set the filetype based on the file's extension, but only if
-" 'filetype' has not already been set
-au BufRead,BufNewFile *.cake setfiletype cs
+function! EnableSpellCheck()
+  set spell spelllang=en_us
+endfunction
+function! DisableSpellCheck()
+  set nospell
+endfunction
 
 " ---- Plugin-Specific Settings -------------------------
-"
-" ---- altercation/vim-colors-solarized settings -----
-
-" Uncomment the next line if your terminal is not configured for solarized
-" let g:solarized_termcolors=256
-
-" Set the colorscheme
-"colorscheme solarized
 
 " ---- morhetz/gruvbox settings ----
 
@@ -259,6 +225,18 @@ let g:airline#extensions#tabline#enabled = 1
 " Use the solarized theme for the Airline status bar
 let g:airline_theme='gruvbox'
 
+" ---- itchyny/lightline.vim settings ----
+let g:lightline = {
+      \ 'colorscheme': 'gruvbox',
+      \ 'active': {
+      \   'left': [ [ 'mode', 'paste' ],
+      \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ]
+      \ },
+      \ 'component_function': {
+      \   'gitbranch': 'FugitiveHead'
+      \ },
+      \ }
+
 " ---- jistr/vim-nerdtree-tabs ----
 "  Open/close NERDTree Tabs with \t
 nmap <silent> <leader>t :NERDTreeTabsToggle<CR>
@@ -296,6 +274,10 @@ nmap <silent> <C-k> <Plug>(ale_previous_wrap)
 nmap <silent> <C-j> <Plug>(ale_next_wrap)
 
 " ---- neoclide/coc.nvim settings ----
+
+" shows documentation under function signature
+nnoremap <silent> <leader>h :call CocActionAsync('doHover')<cr>
+
 " Use tab for trigger completion with characters ahead and navigate
 " NOTE: There's always complete item selected by default, you may want to enable
 " no select by `"suggest.noselect": true` in your configuration file
@@ -348,6 +330,9 @@ let g:easytags_suppress_ctags_warning = 1
 nmap <silent> <leader>b :TagbarToggle<CR>
 " Uncomment to open tagbar automatically whenever possible.
 "autocmd BufEnter * nested :call tagbar#autoopen(0)
+
+" ---- puremourning/vimspector settings ----
+let g:vimspector_enable_mappings = 'HUMAN'
 
 " ---- OmniSharp/omnisharp-vim settings ----
 " Set this to 1 to use ultisnips for snippet handling
@@ -468,30 +453,19 @@ augroup mydelimitMate
 augroup END
 
 " ---- vim-scripts/vim-pencil settings ----
-let g:pencil#wrapModeDefault = 'soft'
+let g:pencil#wrapModeDefault = 'hard'
 augroup pencil
   autocmd!
   autocmd FileType markdown call pencil#init()
-  autocmd FileType textile call pencil#init()
-  autocmd FileType text call pencil#init({'wrap': 'hard'})
+  "autocmd FileType textile call pencil#init()
+  "autocmd FileType text call pencil#init({'wrap': 'hard'})
 augroup END
 
 " ---- junegunn/goyo.vim settings ----
-" cannot figure this out
-"augroup goyo_enable
-"  autocmd!
-"  autocmd FileType markdown Goyo
-"  autocmd FileType textile Goyo
-"  autocmd FileType text Goyo
-"augroup END
-
-" ---- junegunn/limelight.vim settings ----
-autocmd! User GoyoEnter Limelight
-autocmd! User GoyoLeave Limelight!
-
-" ---- jez/vim-superman settings ----
-" better man page support
-noremap K :SuperMan <cword><CR>
+autocmd! User GoyoEnter call EnableSpellCheck()
+autocmd! User GoyoLeave call DisableSpellCheck()
+"autocmd! User GoyoEnter Limelight | call EnableSpellCheck()
+"autocmd! User GoyoLeave Limelight! | call DisableSpellCheck()
 
 " ---- jasonccox/vim-wayland-clipboard settings ----
 set clipboard=unnamedplus
