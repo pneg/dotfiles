@@ -22,9 +22,9 @@ Plug 'tpope/vim-sleuth'
 "Plug 'puremourning/vimspector'
 
 " ---- C# Plugins --------------------------------------
-Plug 'OmniSharp/omnisharp-vim', { 'for': 'csharp' }
+Plug 'OmniSharp/omnisharp-vim', { 'for': 'cs' }
 " Mappings, code-actions available flag and statusline integration
-Plug 'nickspoons/vim-sharpenup', { 'for': 'csharp' }
+Plug 'nickspoons/vim-sharpenup', { 'for': 'cs' }
 " Vim FZF integration, used as OmniSharp selector
 
 " ---- Working with Git -------------------------
