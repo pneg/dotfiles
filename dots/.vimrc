@@ -1,4 +1,4 @@
- " Gotta be first
+" Gotta be first
 set nocompatible
 
 filetype off
@@ -36,6 +36,7 @@ Plug 'tpope/vim-fugitive'
 "Plug 'Raimondi/delimitMate'
 "Plug 'tpope/vim-endwise'
 "Plug 'godlygeek/tabular'
+Plug 'justinmk/vim-sneak'
 
 " ---- Editing plaintext files -------------------------
 Plug 'preservim/vim-pencil', { 'for': ['text', 'markdown', 'org'] }
@@ -58,12 +59,14 @@ Plug 'tpope/vim-surround'
 "Plug 'kana/vim-textobj-user'
 "Plug 'beloglazov/vim-textobj-quotes'
 " Automatically insert the closing HTML tag
-"Plug 'vim-scripts/HTML-AutoCloseTag'
+Plug 'vim-scripts/HTML-AutoCloseTag', { 'for': ['html', 'javascript'] }
 " Markdown Preview in Browser
 "Plug 'iamcco/markdown-preview.nvim'
 "Plug 'bullets-vim/bullets.vim'
 " Decouple CursorHold events from update time
 "Plug 'antoinemadec/FixCursorHold.nvim'
+" Get good
+Plug 'takac/vim-hardtime'
 
 call plug#end()
 
@@ -87,7 +90,7 @@ set mouse=a
 " rebind leader
 let mapleader = " "
 
-set scrolloff=10
+set scrolloff=3
 
 " We need this for plugins like Syntastic and vim-gitgutter which put symbols
 " in the sign column
@@ -107,6 +110,10 @@ nnoremap <Leader>n :nohl<CR>
 " indentation jumping, sometimes useful
 "noremap <silent> <M-k> :call search('^'. matchstr(getline('.'), '\(^\s*\)') .'\%<' . line('.') . 'l\S', 'be')<CR>
 "noremap <silent> <M-j> :call search('^'. matchstr(getline('.'), '\(^\s*\)') .'\%>' . line('.') . 'l\S', 'e')<CR>
+
+" ---- foot terminal problem ---------------------
+set t_SH=
+set t_RS=
 
 " ---- Try and make things faster ---------------------
 set noswapfile
@@ -452,6 +459,9 @@ augroup mydelimitMate
   au FileType python let b:delimitMate_nesting_quotes = ['"', "'"]
 augroup END
 
+" ---- justinmk/vim-sneak settings ----
+let g:sneak#label = 1
+
 " ---- vim-scripts/vim-pencil settings ----
 let g:pencil#wrapModeDefault = 'hard'
 augroup pencil
@@ -468,4 +478,7 @@ autocmd! User GoyoLeave call DisableSpellCheck()
 "autocmd! User GoyoLeave Limelight! | call DisableSpellCheck()
 
 " ---- jasonccox/vim-wayland-clipboard settings ----
-set clipboard=unnamedplus
+"set clipboard=unnamedplus
+
+" ---- takac/vim-hardtime settings ----
+let g:hardtime_default_on = 1
