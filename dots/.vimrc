@@ -82,6 +82,8 @@ set incsearch
 set hlsearch
 set ignorecase
 set smartcase
+set wrap
+set textwidth=80
 
 syntax on
 
@@ -90,12 +92,13 @@ set mouse=a
 " rebind leader
 let mapleader = " "
 
-set scrolloff=3
+set scrolloff=4
 
 " We need this for plugins like Syntastic and vim-gitgutter which put symbols
 " in the sign column
 hi clear SignColumn
-set signcolumn=number
+set signcolumn=yes
+autocmd Filetype man setlocal signcolumn=no
 
 " allow Ctrl-[ without timeout
 set ttimeoutlen=0
@@ -111,6 +114,11 @@ nnoremap <Leader>n :nohl<CR>
 "noremap <silent> <M-k> :call search('^'. matchstr(getline('.'), '\(^\s*\)') .'\%<' . line('.') . 'l\S', 'be')<CR>
 "noremap <silent> <M-j> :call search('^'. matchstr(getline('.'), '\(^\s*\)') .'\%>' . line('.') . 'l\S', 'e')<CR>
 
+" Remember cursor position
+if has("autocmd")
+  au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | execute "normal! g`\"" | endif
+endif
+
 " ---- foot terminal problem ---------------------
 set t_SH=
 set t_RS=
@@ -118,7 +126,7 @@ set t_RS=
 " ---- Try and make things faster ---------------------
 set noswapfile
 set lazyredraw
-set viminfo=
+"set viminfo=
 
 " ---- Indentation Settings ---------------------------
 set autoindent
@@ -266,7 +274,7 @@ augroup END
 
 " ---- dense-analysis/ale settings ----
 let g:ale_sign_error = '✘'
-let g:ale_sign_warning = "▲"
+let g:ale_sign_warning = '▲'
 let g:ale_virtualtext_cursor = 'current'
 let g:ale_linters = {
 \   'c': ['gcc'],
@@ -282,8 +290,21 @@ nmap <silent> <C-j> <Plug>(ale_next_wrap)
 
 " ---- neoclide/coc.nvim settings ----
 
-" shows documentation under function signature
-nnoremap <silent> <leader>h :call CocActionAsync('doHover')<cr>
+" Use K to show documentation in preview window
+nnoremap <silent> K :call ShowDocumentation()<CR>
+" Use <Leader>K to show manual pages
+runtime! ftplugin/man.vim
+
+function! ShowDocumentation()
+  if CocAction('hasProvider', 'hover')
+    call CocActionAsync('doHover')
+  else
+    call feedkeys('K', 'in')
+  endif
+endfunction
+
+" Show signature help on placeholder jump
+autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
 
 " Use tab for trigger completion with characters ahead and navigate
 " NOTE: There's always complete item selected by default, you may want to enable
