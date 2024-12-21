@@ -11,11 +11,15 @@ Plug 'itchyny/lightline.vim'
 " ---- Vim as a programmer's text editor -----------------
 "Plug 'scrooloose/nerdtree'
 "Plug 'jistr/vim-nerdtree-tabs'
-Plug 'dense-analysis/ale'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
+"Plug 'dense-analysis/ale'
+"Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'girishji/vimcomplete'
+Plug 'yegappan/lsp'
 "Plug 'ctrlpvim/ctrlp.vim'
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-Plug 'junegunn/fzf.vim'
+"Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+"Plug 'junegunn/fzf.vim'
+Plug 'girishji/scope.vim'
+Plug 'girishji/devdocs.vim'
 " disabled because it binds space in insert mode
 "Plug 'vim-scripts/a.vim'
 Plug 'tpope/vim-sleuth'
@@ -66,7 +70,7 @@ Plug 'vim-scripts/HTML-AutoCloseTag', { 'for': ['html', 'javascript'] }
 " Decouple CursorHold events from update time
 "Plug 'antoinemadec/FixCursorHold.nvim'
 " Get good
-Plug 'takac/vim-hardtime'
+"Plug 'takac/vim-hardtime'
 
 call plug#end()
 
@@ -141,6 +145,10 @@ nnoremap <S-Tab> <<
 inoremap <S-Tab> <C-d>
 " Make Ctrl-Backspace work
 imap <C-BS> <C-W>
+
+" see tabs
+set listchars=tab:▷▷⋮
+set invlist
 
 " Disable comments automatically inserting on new line
 autocmd FileType * set formatoptions-=cro
@@ -288,57 +296,41 @@ let g:ale_echo_cursor = 0
 nmap <silent> <C-k> <Plug>(ale_previous_wrap)
 nmap <silent> <C-j> <Plug>(ale_next_wrap)
 
-" ---- neoclide/coc.nvim settings ----
+" ---- girishji/vimcomplete settings ----
+let g:vimcomplete_tab_enable = 1
 
-" Use K to show documentation in preview window
-nnoremap <silent> K :call ShowDocumentation()<CR>
-" Use <Leader>K to show manual pages
-runtime! ftplugin/man.vim
+let vimcompleteOptions = #{
+      \  lsp: #{ priority: 20 }
+      \}
 
-function! ShowDocumentation()
-  if CocAction('hasProvider', 'hover')
-    call CocActionAsync('doHover')
-  else
-    call feedkeys('K', 'in')
-  endif
-endfunction
+autocmd VimEnter * call g:VimCompleteOptionsSet(vimcompleteOptions)
 
-" Show signature help on placeholder jump
-autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+" ---- yegappan/lsp settings ----
+let lspOpts = #{autoHighlightDiags: v:true}
+autocmd User LspSetup call LspOptionsSet(lspOpts)
 
-" Use tab for trigger completion with characters ahead and navigate
-" NOTE: There's always complete item selected by default, you may want to enable
-" no select by `"suggest.noselect": true` in your configuration file
-" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
-" other plugin before putting this into your config
-inoremap <silent><expr> <TAB>
-      \ coc#pum#visible() ? coc#pum#next(1) :
-      \ CheckBackspace() ? "\<Tab>" :
-      \ coc#refresh()
-inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
+let lspServers = [#{
+      \	  name: 'clang',
+      \	  filetype: ['c', 'cpp'],
+      \	  path: '/usr/bin/clangd',
+      \	  args: ['--background-index']
+      \ }, #{
+      \	  name: 'jdtls',
+      \	  filetype: 'java',
+      \	  path: '/usr/bin/jdtls',
+      \	  args: []
+      \ }]
+autocmd User LspSetup call LspAddServer(lspServers)
 
-" Make <CR> to accept selected completion item or notify coc.nvim to format
-" <C-g>u breaks current undo, please make your own choice
-inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
-                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+nmap <Leader>l :LspDiagShow<CR>
 
-function! CheckBackspace() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~# '\s'
-endfunction
+" ---- girishji/scope.vim settings ----
+nnoremap <Leader>f :call g:scope#fuzzy#File()<cr>
 
-" disable on certain files
-let s:coc_filetypes_disable = [ 'text', 'textile', 'markdown' ]
-function! s:disable_coc_for_type()
-  if index(s:coc_filetypes_disable, &filetype) != -1
-    :silent! CocDisable
-  endif
-endfunction
-
-augroup CocGroup
- autocmd!
- autocmd BufNew,BufEnter,BufAdd,BufCreate * call s:disable_coc_for_type()
-augroup end
+" ---- girishji/devdocs.vim settings ----
+nnoremap <Leader>d :DevdocsFind<CR>
+"nnoremap <your_key> :DevdocsInstall<CR>
+"noremap <your_key> :DevdocsUninstall<CR>
 
 " ---- xolox/vim-easytags settings ----
 " Where to look for tags files
@@ -482,6 +474,9 @@ augroup END
 
 " ---- justinmk/vim-sneak settings ----
 let g:sneak#label = 1
+
+map f <Plug>Sneak_s
+map F <Plug>Sneak_S
 
 " ---- vim-scripts/vim-pencil settings ----
 let g:pencil#wrapModeDefault = 'hard'
