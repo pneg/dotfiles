@@ -237,17 +237,17 @@ autocmd User LspSetup call LspOptionsSet(lspOpts)
 let lspServers = [#{
       \	  name: 'clang',
       \	  filetype: ['c', 'cpp'],
-      \	  path: '/usr/bin/clangd',
+      \	  path: $HOME.'/.nix-profile/bin/clangd',
       \	  args: ['--background-index']
       \ }, #{
       \	  name: 'jdtls',
       \	  filetype: 'java',
-      \	  path: '/usr/bin/jdtls',
+      \	  path: $HOME.'/.nix-profile/bin/jdtls',
       \	  args: []
       \ }, #{
       \	  name: 'OmniSharp',
       \	  filetype: 'cs',
-      \	  path:'/usr/bin/OmniSharp',
+      \	  path: $HOME.'/.nix-profile/bin/OmniSharp',
       \	  args: ['-z', '--languageserver', '--encoding', 'utf-8']
       \ }]
 autocmd User LspSetup call LspAddServer(lspServers)
