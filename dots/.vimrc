@@ -6,7 +6,8 @@ filetype off
 " ---- Plugins -------------------------------------------
 call plug#begin()
 " ---- General Plugins -----------------------------------
-Plug 'morhetz/gruvbox'
+"Plug 'morhetz/gruvbox'
+Plug 'lifepillar/gruvbox8'
 Plug 'itchyny/lightline.vim'
 "Plug 'lambdalisue/vim-fern'
 Plug 'tpope/vim-vinegar'
@@ -18,6 +19,8 @@ Plug 'yegappan/lsp'
 Plug 'girishji/scope.vim'
 Plug 'girishji/devdocs.vim'
 Plug 'tpope/vim-sleuth'
+Plug 'tpope/vim-commentary'
+Plug 'junegunn/vim-easy-align'
 Plug 'puremourning/vimspector'
 
 " ---- Git -------------------------
@@ -37,16 +40,19 @@ Plug 'junegunn/limelight.vim', { 'for': ['text', 'markdown', 'org'] }
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'jasonccox/vim-wayland-clipboard'
 
-" ---- Extras/Advanced plugins ---------------------------
+" ---- Extra plugins ---------------------------
 Plug 'ntpeters/vim-better-whitespace'
 Plug 'tpope/vim-surround'
 Plug 'vim-scripts/HTML-AutoCloseTag', { 'for': ['html', 'javascript'] }
 "Plug 'antoinemadec/FixCursorHold.nvim'
-"Plug 'takac/vim-hardtime'
 
 call plug#end()
 
 filetype plugin indent on
+
+" see man pages in new buffer
+runtime! ftplugin/man.vim
+
 
 " ---- General settings --------------------------------
 set backspace=indent,eol,start
@@ -59,39 +65,55 @@ set hlsearch
 set ignorecase
 set smartcase
 set wrap
-set textwidth=80
-
+set textwidth=0
+set scrolloff=4
+set wildmenu
 syntax on
-
 set mouse=a
-
-" rebind leader
 let mapleader = " "
 
-set scrolloff=4
-
-" We need this for plugins like lsp and vim-gitgutter which put symbols
-" in the sign column
+" We need this for plugins like lsp and vim-gitgutter
+" which put symbols in the signcolumn
 hi clear SignColumn
 set signcolumn=yes
-autocmd Filetype man setlocal signcolumn=no
 
 " allow Ctrl-[ without timeout
 set ttimeoutlen=0
 
-" insert newline in normal mode without going into insert
-nnoremap <Leader>o o<Esc>0"_D
-nnoremap <Leader>O O<Esc>0"_D
+" bar cursor in insert mode
+let &t_SI = "\e[6 q"
+" else steady block
+let &t_EI = "\e[2 q"
 
-" bind nohl
-nnoremap <Leader>n :nohl<CR>
+" Try and make things faster
+set lazyredraw
 
-" Remember cursor position
-if has("autocmd")
-  au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | execute "normal! g`\"" | endif
-endif
+" Spellcheck
+hi clear SpellBad
+hi SpellBad cterm=underline
+" Style for gvim
+hi SpellBad gui=undercurl
 
-" ---- Let's save undo info! ----
+
+" ---- Indentation/Folding Settings ---------------------
+set autoindent
+set expandtab
+set tabstop=2
+set softtabstop=2
+set shiftwidth=2
+
+" see tabs
+set listchars=tab:▷▷⋮
+set invlist
+
+" folding settings
+set foldmethod=manual
+set foldnestmax=2
+set foldopen-=block
+
+
+" ---- File Management ---------------------------------
+" Use undofiles instead of swapfile
 if !isdirectory($HOME."/.cache/vim")
     call mkdir($HOME."/.cache/vim", "", 0770)
 endif
@@ -100,12 +122,44 @@ if !isdirectory($HOME."/.cache/vim/undo-dir")
 endif
 set undodir=~/.cache/vim/undo-dir
 set undofile
+set noswapfile
 
-" ---- Write to file with sudo ----
-command WriteSudo w !sudo tee %
+" netrw nerdtree-like setup
+let g:netrw_banner = 0
+let g:netrw_liststyle = 3
+let g:netrw_browse_split = 4
+let g:netrw_winsize = 10
+nmap <Leader>f :Vexplore<CR>
+
+
+" ---- Keybindings -------------------------------------
+" bind nohl
+nnoremap <Leader>n :nohl<CR>
 
 " Make Ctrl-Backspace work
-imap <C-BS> <C-W>
+"imap <C-BS> <C-W>
+" Rebind shift-tab for insert mode
+"inoremap <S-Tab> <C-d>
+
+" Move between buffers quickly
+nnoremap <Leader>j :bp<CR>
+nnoremap <Leader>k :bn<CR>
+
+" Move between tabs quickly
+nnoremap <A-1> 1gt
+nnoremap <A-2> 2gt
+nnoremap <A-3> 3gt
+nnoremap <A-4> 4gt
+nnoremap <A-5> 5gt
+nnoremap <A-6> 6gt
+nnoremap <A-7> 7gt
+nnoremap <A-8> 8gt
+nnoremap <A-9> 9gt
+nnoremap <A-0> :tablast<CR>
+
+" insert newline in normal mode without going into insert
+nnoremap <Leader>o o<Esc>0"_D
+nnoremap <Leader>O O<Esc>0"_D
 
 " append/insert any text object
 " https://gist.github.com/wellle/9289224
@@ -119,78 +173,56 @@ function! Insert(type, ...)
     call feedkeys("`[i", 'n')
 endfunction
 
-" Terminal problems
-set t_SH=
-set t_RS=
 
-" Try and make things faster
-set noswapfile
-set lazyredraw
+" ---- AutoCMDs -----------------------------------------
+" remember cursor position
+if has("autocmd")
+  au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | execute "normal! g`\"" | endif
+endif
 
-" ---- Indentation Settings ---------------------------
-set autoindent
-set expandtab
-set tabstop=4
-set softtabstop=4
-set shiftwidth=4
-" Rebind shift-tab for insert mode
-inoremap <S-Tab> <C-d>
-
-" see tabs
-set listchars=tab:▷▷⋮
-set invlist
-
-" ---- Programming settings ------------------------
 " Disable comments automatically inserting on new line
 autocmd FileType * set formatoptions-=cro
 
-" folding settings
-set foldmethod=manual
-set foldnestmax=2
-set foldopen-=block
-au BufRead * normal zM
 " save folds
 " unfortunately this also preserves the foldmethod
 autocmd BufWinLeave *.* mkview
 autocmd BufWinEnter *.* silent loadview
 
-" netrw nerdtree-like setup
-let g:netrw_banner = 0
-let g:netrw_liststyle = 3
-let g:netrw_browse_split = 4
-let g:netrw_winsize = 10
-nmap <Leader>t :Vexplore<CR>
+" Open folds on opening files
+au BufRead * normal zM
+
+" Bug where man pages are one column too large when signcolumn is on
+autocmd Filetype man setlocal signcolumn=no
 
 
-" ---- Plaintext editing settings ----
-hi clear SpellBad
-hi SpellBad cterm=underline
-" Style for gvim
-hi SpellBad gui=undercurl
+" ---- Commands -----------------------------------------
+" Write to file with sudo
+command WriteSudo w !sudo tee %
 
-function! EnableSpellCheck()
-  set spell spelllang=en_us
-endfunction
-function! DisableSpellCheck()
-  set nospell
-endfunction
+command EnableSpellCheck set spell spelllang=en_us
+command DisableSpellCheck set nospell
 
-" ---- Theming ----
+
+" ---- Theming ------------------------------------------
 set background=dark
 
 " italics (must be before colorscheme)
 let g:gruvbox_italic=1
 
+" Highlight groups for various languages
+let g:gruvbox_filetype_hi_groups=1
+
 " Set the colorscheme
-colorscheme gruvbox
+colorscheme gruvbox8
+
 
 " ---- Plugin-Specific Settings -------------------------
 
-" ---- morhetz/gruvbox settings ----
+" ---- morhetz/gruvbox & lifepiller/gruvbox8 settings ----
 "Use 24-bit (true-color) mode in Vim/Neovim when outside tmux.
 "If you're using tmux version 2.2 or later, you can remove the outermost $TMUX check and use tmux's 24-bit color support
 "(see < http://sunaku.github.io/tmux-24bit-color.html#usage > for more information.)
-if (empty($TMUX) && getenv('TERM_PROGRAM') != 'Apple_Terminal')
+if (getenv('TERM_PROGRAM') != 'Apple_Terminal')
   if (has("nvim"))
     "For Neovim 0.1.3 and 0.1.4 < https://github.com/neovim/neovim/pull/2198 >
     let $NVIM_TUI_ENABLE_TRUE_COLOR=1
@@ -210,7 +242,7 @@ set laststatus=2
 set noshowmode
 
 let g:lightline = {
-      \ 'colorscheme': 'gruvbox',
+      \ 'colorscheme': 'gruvbox8',
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ],
       \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ]
@@ -228,7 +260,10 @@ let vimcompleteOptions = #{
       \}
 
 autocmd VimEnter * call g:VimCompleteOptionsSet(vimcompleteOptions)
-autocmd FileType markdown VimCompleteDisable
+autocmd VimEnter * VimCompleteEnable c cpp csharp python java javascript nix vim lua
+
+" disable echoing matches
+set shortmess+=c
 
 " ---- yegappan/lsp settings ----
 let lspOpts = #{autoHighlightDiags: v:true}
@@ -237,25 +272,35 @@ autocmd User LspSetup call LspOptionsSet(lspOpts)
 let lspServers = [#{
       \	  name: 'clang',
       \	  filetype: ['c', 'cpp'],
-      \	  path: '/usr/bin/clangd',
+      \	  path: $HOME.'/.nix-profile/bin/clangd',
       \	  args: ['--background-index']
       \ }, #{
       \	  name: 'jdtls',
       \	  filetype: 'java',
-      \	  path: '/usr/bin/jdtls',
+      \	  path: $HOME.'/.nix-profile/bin/jdtls',
       \	  args: []
       \ }, #{
       \	  name: 'OmniSharp',
       \	  filetype: 'cs',
-      \	  path:'/usr/bin/OmniSharp',
+      \	  path: $HOME.'/.nix-profile/bin/OmniSharp',
       \	  args: ['-z', '--languageserver', '--encoding', 'utf-8']
-      \ }]
+      \ }, #{
+      \	  name: 'nil',
+      \	  filetype: 'nix',
+      \	  path: $HOME.'/.nix-profile/bin/nil'
+      \	}]
 autocmd User LspSetup call LspAddServer(lspServers)
 
 nmap <Leader>l :LspDiagShow<CR>
 
+" Signature help
+nmap K :LspHover<CR>
+" Man pages
+set keywordprg=:Man
+nnoremap <Leader>k <Leader>K
+
 " ---- girishji/scope.vim settings ----
-nnoremap <Leader>f :call g:scope#fuzzy#File()<cr>
+nnoremap <Leader>p :call g:scope#fuzzy#File()<cr>
 
 " ---- girishji/devdocs.vim settings ----
 nnoremap <Leader>d :DevdocsFind<CR>
@@ -264,12 +309,8 @@ nnoremap <Leader>d :DevdocsFind<CR>
 let g:vimspector_enable_mappings = 'HUMAN'
 
 " ---- airblade/vim-gitgutter settings ----
-" In vim-airline only display "hunks" if the diff is non-zero
-let g:airline#extensions#hunks#non_zero_only = 1
-let g:airline#extensions#ale#enabled = 1
-
-" Makes signpost same color as line numbers
-highlight clear SignColumn
+" Makes signpost same color as line numbers because for some reason its reset halfway through the file
+hi clear SignColumn
 
 " ---- Raimondi/delimitMate settings ----
 let delimitMate_expand_cr = 1
@@ -283,8 +324,8 @@ augroup END
 
 " ---- justinmk/vim-sneak settings ----
 let g:sneak#label = 1
-map f <Plug>Sneak_s
-map F <Plug>Sneak_S
+"map f <Plug>Sneak_s
+"map F <Plug>Sneak_S
 
 " ---- vim-scripts/vim-pencil settings ----
 let g:pencil#wrapModeDefault = 'hard'
@@ -296,14 +337,11 @@ augroup pencil
 augroup END
 
 " ---- junegunn/goyo.vim settings ----
-autocmd! User GoyoEnter call EnableSpellCheck()
-autocmd! User GoyoLeave call DisableSpellCheck()
-"autocmd! User GoyoEnter Limelight | call EnableSpellCheck()
-"autocmd! User GoyoLeave Limelight! | call DisableSpellCheck()
+autocmd! User GoyoEnter EnableSpellCheck
+autocmd! User GoyoLeave DisableSpellCheck
+"autocmd! User GoyoEnter Limelight | EnableSpellCheck
+"autocmd! User GoyoLeave Limelight! | DisableSpellCheck
 
 " ---- antoinemadec/FixCursorHold.nvim settings ----
 " Time between CursorHolds
 "let g:cursorhold_updatetime=100
-
-" ---- takac/vim-hardtime settings ----
-let g:hardtime_default_on = 1
