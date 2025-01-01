@@ -11,10 +11,11 @@ Plug 'lifepillar/gruvbox8'
 Plug 'itchyny/lightline.vim'
 "Plug 'lambdalisue/vim-fern'
 Plug 'tpope/vim-vinegar'
+Plug 'tpope/vim-unimpaired'
+Plug 'justinmk/vim-sneak'
 
 " ---- Vim as a programmer's text editor -----------------
 Plug 'girishji/vimcomplete'
-Plug 'girishji/ngram-complete.vim'
 Plug 'yegappan/lsp'
 Plug 'girishji/scope.vim'
 Plug 'girishji/devdocs.vim'
@@ -22,28 +23,25 @@ Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-commentary'
 Plug 'junegunn/vim-easy-align'
 Plug 'puremourning/vimspector'
+Plug 'tpope/vim-surround'
+"Plug 'Raimondi/delimitMate'
+Plug 'vim-scripts/HTML-AutoCloseTag', { 'for': ['html', 'javascript'] }
 
-" ---- Git -------------------------
+" ---- Git -------------------------------
 Plug 'airblade/vim-gitgutter'
 Plug 'tpope/vim-fugitive'
-
-" ---- Other text editing features ------------------------
-"Plug 'Raimondi/delimitMate'
-Plug 'justinmk/vim-sneak'
 
 " ---- Plaintext -------------------------
 Plug 'preservim/vim-pencil', { 'for': ['text', 'markdown', 'org'] }
 Plug 'junegunn/goyo.vim', { 'for': ['text', 'markdown', 'org'] }
 Plug 'junegunn/limelight.vim', { 'for': ['text', 'markdown', 'org'] }
 
-" ---- tmux, system clipboard  -----------------
+" ---- Extras ----------------------------
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'jasonccox/vim-wayland-clipboard'
-
-" ---- Extra plugins ---------------------------
 Plug 'ntpeters/vim-better-whitespace'
-Plug 'tpope/vim-surround'
-Plug 'vim-scripts/HTML-AutoCloseTag', { 'for': ['html', 'javascript'] }
+Plug 'dbakker/vim-paragraph-motion'
+"Plug 'thirtythreeforty/LessSpace.vim'
 "Plug 'antoinemadec/FixCursorHold.nvim'
 
 call plug#end()
@@ -124,11 +122,11 @@ set undodir=~/.cache/vim/undo-dir
 set undofile
 set noswapfile
 
-" netrw nerdtree-like setup
+" netrw nerdtree-like setup (not anymore)
 let g:netrw_banner = 0
 let g:netrw_liststyle = 3
-let g:netrw_browse_split = 4
-let g:netrw_winsize = 10
+"let g:netrw_browse_split = 4
+"let g:netrw_winsize = 10
 nmap <Leader>f :Vexplore<CR>
 
 
@@ -137,13 +135,9 @@ nmap <Leader>f :Vexplore<CR>
 nnoremap <Leader>n :nohl<CR>
 
 " Make Ctrl-Backspace work
-"imap <C-BS> <C-W>
+"imap <C-"BS> <C-W>
 " Rebind shift-tab for insert mode
 "inoremap <S-Tab> <C-d>
-
-" Move between buffers quickly
-nnoremap <Leader>j :bp<CR>
-nnoremap <Leader>k :bn<CR>
 
 " Move between tabs quickly
 nnoremap <A-1> 1gt
@@ -156,10 +150,6 @@ nnoremap <A-7> 7gt
 nnoremap <A-8> 8gt
 nnoremap <A-9> 9gt
 nnoremap <A-0> :tablast<CR>
-
-" insert newline in normal mode without going into insert
-nnoremap <Leader>o o<Esc>0"_D
-nnoremap <Leader>O O<Esc>0"_D
 
 " append/insert any text object
 " https://gist.github.com/wellle/9289224
@@ -175,21 +165,16 @@ endfunction
 
 
 " ---- AutoCMDs -----------------------------------------
-" remember cursor position
-if has("autocmd")
-  au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | execute "normal! g`\"" | endif
-endif
-
-" Disable comments automatically inserting on new line
-autocmd FileType * set formatoptions-=cro
-
-" save folds
-" unfortunately this also preserves the foldmethod
+" save folds and cursor position
+set viewoptions-=options
 autocmd BufWinLeave *.* mkview
 autocmd BufWinEnter *.* silent loadview
 
 " Open folds on opening files
 au BufRead * normal zM
+
+" Disable comments automatically inserting on new line
+autocmd FileType * set formatoptions-=cro
 
 " Bug where man pages are one column too large when signcolumn is on
 autocmd Filetype man setlocal signcolumn=no
