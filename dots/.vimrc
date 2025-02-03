@@ -13,10 +13,12 @@ Plug 'itchyny/lightline.vim'
 Plug 'tpope/vim-vinegar'
 Plug 'tpope/vim-unimpaired'
 Plug 'justinmk/vim-sneak'
+"Plug 'Houl/repmo-vim'
+"Plug 'vds2212/vim-remotions'
 
 " ---- Vim as a programmer's text editor -----------------
-Plug 'girishji/vimcomplete'
 Plug 'yegappan/lsp'
+Plug 'girishji/vimcomplete'
 Plug 'girishji/scope.vim'
 Plug 'girishji/devdocs.vim'
 Plug 'tpope/vim-sleuth'
@@ -26,6 +28,8 @@ Plug 'puremourning/vimspector'
 Plug 'tpope/vim-surround'
 "Plug 'Raimondi/delimitMate'
 Plug 'vim-scripts/HTML-AutoCloseTag', { 'for': ['html', 'javascript'] }
+Plug 'kovisoft/slimv', { 'for': [ 'scheme', 'cl', 'lisp', 'clojure' ] }
+"Plug 'jpalardy/vim-slime'
 
 " ---- Git -------------------------------
 Plug 'airblade/vim-gitgutter'
@@ -66,6 +70,7 @@ set wrap
 set textwidth=0
 set scrolloff=4
 set wildmenu
+set wildmode=longest:list,full
 syntax on
 set mouse=a
 let mapleader = " "
@@ -89,9 +94,22 @@ set lazyredraw
 " Spellcheck
 hi clear SpellBad
 hi SpellBad cterm=underline
-" Style for gvim
+
+" ---- GUI settings
 hi SpellBad gui=undercurl
 
+if has("gui_running")
+  set guifont=Terminus\ 8
+endif
+
+set guioptions-=T
+
+if !has("gui_running")
+    :source $VIMRUNTIME/menu.vim
+    :set cpoptions-=<
+    :set wildcharm=<C-Z>
+    :map <Leader>m :emenu <C-Z>
+endif
 
 " ---- Indentation/Folding Settings ---------------------
 set autoindent
@@ -132,7 +150,7 @@ nmap <Leader>f :Vexplore<CR>
 
 " ---- Keybindings -------------------------------------
 " bind nohl
-nnoremap <Leader>n :nohl<CR>
+nnoremap <Leader>n :nohl<return>
 
 " Make Ctrl-Backspace work
 "imap <C-"BS> <C-W>
@@ -163,6 +181,11 @@ function! Insert(type, ...)
     call feedkeys("`[i", 'n')
 endfunction
 
+" Asynchronous make cs project
+autocmd Filetype cs nmap <Leader>r :call job_start('dotnet run')<CR>
+
+" Asynchronous make love2d project
+autocmd Filetype lua nmap <Leader>r :w \| call job_start('love .')<CR>
 
 " ---- AutoCMDs -----------------------------------------
 " save folds and cursor position
@@ -173,11 +196,17 @@ autocmd BufWinEnter *.* silent loadview
 " Open folds on opening files
 au BufRead * normal zM
 
+" Stop highlighting when entering insert mode
+autocmd InsertEnter * call feedkeys("\<Cmd>noh\<cr>", 'n')
+
 " Disable comments automatically inserting on new line
 autocmd FileType * set formatoptions-=cro
 
 " Bug where man pages are one column too large when signcolumn is on
 autocmd Filetype man setlocal signcolumn=no
+
+" make cs project
+autocmd Filetype cs set makeprg=dotnet\ run
 
 
 " ---- Commands -----------------------------------------
@@ -192,7 +221,8 @@ command DisableSpellCheck set nospell
 set background=dark
 
 " italics (must be before colorscheme)
-let g:gruvbox_italic=1
+let g:gruvbox_italics=0
+let g:gruvbox_italicize_strings=0
 
 " Highlight groups for various languages
 let g:gruvbox_filetype_hi_groups=1
@@ -237,19 +267,6 @@ let g:lightline = {
       \ },
       \ }
 
-" ---- girishji/vimcomplete settings ----
-let g:vimcomplete_tab_enable = 1
-
-let vimcompleteOptions = #{
-      \  lsp: #{ priority: 20 }
-      \}
-
-autocmd VimEnter * call g:VimCompleteOptionsSet(vimcompleteOptions)
-autocmd VimEnter * VimCompleteEnable c cpp csharp python java javascript nix vim lua
-
-" disable echoing matches
-set shortmess+=c
-
 " ---- yegappan/lsp settings ----
 let lspOpts = #{autoHighlightDiags: v:true}
 autocmd User LspSetup call LspOptionsSet(lspOpts)
@@ -257,32 +274,58 @@ autocmd User LspSetup call LspOptionsSet(lspOpts)
 let lspServers = [#{
       \	  name: 'clang',
       \	  filetype: ['c', 'cpp'],
-      \	  path: $HOME.'/.nix-profile/bin/clangd',
+      \	  path: '/usr/bin/clangd',
       \	  args: ['--background-index']
       \ }, #{
       \	  name: 'jdtls',
       \	  filetype: 'java',
-      \	  path: $HOME.'/.nix-profile/bin/jdtls',
+      \	  path: '/usr/bin/jdtls',
       \	  args: []
       \ }, #{
       \	  name: 'OmniSharp',
       \	  filetype: 'cs',
-      \	  path: $HOME.'/.nix-profile/bin/OmniSharp',
+      \	  path: '/usr/bin/OmniSharp',
       \	  args: ['-z', '--languageserver', '--encoding', 'utf-8']
       \ }, #{
-      \	  name: 'nil',
-      \	  filetype: 'nix',
-      \	  path: $HOME.'/.nix-profile/bin/nil'
+      \	  name: 'luals',
+      \	  filetype: 'lua',
+      \	  path: '/usr/bin/lua-language-server',
+      \	  workspaceConfig: #{
+      \	    Lua: #{
+      \	      hint: #{
+      \		enable: v:true,
+      \	      },
+      \	      workspace: #{
+      \		checkThirdParty: v:false,
+      \		library: [ "${3rd}/love2d/library" ]
+      \	      }
+      \	    }
+      \	  }
       \	}]
 autocmd User LspSetup call LspAddServer(lspServers)
 
 nmap <Leader>l :LspDiagShow<CR>
+nmap gd :LspGotoDefinition<CR>
+nmap <Leader>gd :LspGotoDeclaration<CR>
 
 " Signature help
 nmap K :LspHover<CR>
 " Man pages
 set keywordprg=:Man
 nnoremap <Leader>k <Leader>K
+
+" ---- girishji/vimcomplete settings ----
+let g:vimcomplete_tab_enable = 1
+
+let vimcompleteOptions = #{
+      \  lsp: #{ priority: 20 }
+      \}
+
+"autocmd VimEnter * call g:VimCompleteOptionsSet(vimcompleteOptions)
+autocmd VimEnter * VimCompleteEnable c cpp cs python java javascript nix vim lua
+
+" disable echoing matches
+set shortmess+=c
 
 " ---- girishji/scope.vim settings ----
 nnoremap <Leader>p :call g:scope#fuzzy#File()<cr>
@@ -307,13 +350,20 @@ augroup mydelimitMate
   au FileType python let b:delimitMate_nesting_quotes = ['"', "'"]
 augroup END
 
+" ---- kovisoft/slimv settings ----
+let g:lisp_rainbow=1
+let g:slimv_leader=","
+
+" ---- jpalardy/vim-slime settings ----
+let g:slime_target = "vimterminal"
+
 " ---- justinmk/vim-sneak settings ----
 let g:sneak#label = 1
 "map f <Plug>Sneak_s
 "map F <Plug>Sneak_S
 
 " ---- vim-scripts/vim-pencil settings ----
-let g:pencil#wrapModeDefault = 'hard'
+let g:pencil#wrapModeDefault = 'soft'
 augroup pencil
   autocmd!
   autocmd FileType markdown call pencil#init()
@@ -322,10 +372,10 @@ augroup pencil
 augroup END
 
 " ---- junegunn/goyo.vim settings ----
-autocmd! User GoyoEnter EnableSpellCheck
-autocmd! User GoyoLeave DisableSpellCheck
-"autocmd! User GoyoEnter Limelight | EnableSpellCheck
-"autocmd! User GoyoLeave Limelight! | DisableSpellCheck
+"autocmd! User GoyoEnter EnableSpellCheck
+"autocmd! User GoyoLeave DisableSpellCheck
+autocmd! User GoyoEnter Limelight " | EnableSpellCheck
+autocmd! User GoyoLeave Limelight! " | DisableSpellCheck
 
 " ---- antoinemadec/FixCursorHold.nvim settings ----
 " Time between CursorHolds
